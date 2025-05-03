@@ -14,25 +14,36 @@ Formulele sunt reprezentate astfel:
 
 ## Pasii de rulare
 
-Proiectul a fost testat pe linux, dar procesul de rulare este analogic pe restul sistemelor de operare.
+Proiectul a fost testat pe Linux, dar procesul de rulare este analogic pe restul sistemelor de operare. Pasii de mai jos sunt prezentati pentru Linux.
 
-1. Verificarea versiunii si asigurarea ca e >= decat 3.10
-`$ python3 --version`
-`Python 3.13.3`
+1. Verificarea versiunii si asigurarea ca e >= ca 3.10
+```sh
+$ python3 --version
+Python 3.13.3
+```
 
 Daca versiunea Python e **mai mica** decat 3.10, trebuie instalata o versiune mai noua. Aceasta se poate face aici: https://www.python.org/downloads/
 
 2. Crearea unui virtual environement si activarea acestuia
-`$ cd mpi-sat`
-`$ python3 -m venv venv`
-`$ source venv/bin/activate`
+```sh
+$ cd mpi-sat
+$ python3 -m venv venv
+$ source venv/bin/activate
+```
 
 3. Instalarea dependetelor
-`$ pip install -r requirements.txt`
+```sh
+$ pip install -r requirements.txt
+```
 
 4. Rularea codului
-`python3 main.py`
+```sh
+$ python3 main.py
+```
 
 Daca totul a mers bine, testele ar trebui sa ruleze, si graficele ar trebui sa se deschida. Outputul din linia de comanda va indica testul curent care se ruleaza. In dependenta de performanta calculatorului, acest lucru poate dura cateva secunde.
+
+Graficele din articol au fost facute pe un calculator cu Intel i5-4300M @ 3.300GHz si 8GB RAM. Este posibil ca pe alte specificatii, valorile timpulului din grafice sa difere, dar tendintele graficului ar trebui sa fie aproximativ aceleasi.
+
 
 [^1]: Logic for Computer Science: Foundations of Automatic Theorem Proving, Jean H. Gallier, 2003. Definitia rezolutiei pe care am folosit-o poate fi gasita la capitolul 4.3.2
