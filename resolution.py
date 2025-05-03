@@ -44,7 +44,7 @@ def _remove_redundant_literals(clauses: Formula) -> Formula:
     return new_clauses
 
 
-def _optimized_resolve(a: Clause, b: Clause):
+def _optimized_resolve(a: Clause, b: Clause) -> Formula:
     resolvents = set()
     for var, neg in a:
         complementary = (var, not neg)
