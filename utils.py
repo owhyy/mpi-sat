@@ -35,7 +35,7 @@ def generate_random_clause(max_literals: int, distinct_literals: int) -> Clause:
 
 
 def generate_random_formula(
-    clauses: int, max_literals_per_clause: int, distinct_literals: int = 10
+        clauses: int, max_literals_per_clause: int, distinct_literals: int = 10
 ) -> Formula:
     return set(
         generate_random_clause(max_literals_per_clause, distinct_literals)
