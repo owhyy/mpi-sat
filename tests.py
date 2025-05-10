@@ -49,7 +49,7 @@ def _clause_based_test_df(
 def plot_general_method_comparison():
     methods = [
         # Method(name="Brute force", function=brute_force, kwargs={}),
-        Method(name="Rezolutie neoptimizata", function=resolution, kwargs={}),
+        # Method(name="Rezolutie neoptimizata", function=resolution, kwargs={}),
         Method(
             name="Rezolutie optimizata",
             function=resolution,
@@ -74,23 +74,80 @@ def plot_general_method_comparison():
         Method(
             name="DPLL",
             function=dpll,
-            kwargs={
-            },
+            kwargs={},
         ),
-            Method(
+        Method(
             name="DPLL Optimizat",
             function=dpll,
             kwargs={
                 "remove_subsumed_clauses": True,
-                # "failed_literal_detection": True,
-                # "shortest_clause_heuristic": True
+                "failed_literal_detection": False,
+                "shortest_clause_heuristic": True,
             },
         ),
     ]
     df1 = _clause_based_test_df(
-        n_clauses=10, max_literals_per_clause=20000, distinct_literals=30, methods=methods
+        n_clauses=100,
+        max_literals_per_clause=100,
+        distinct_literals=30,
+        methods=methods,
     )
     viz = df1.plot(x="Numar de clauze", title="maxim 10 literali/clauza")
+    viz.set_ylabel("Timp (secunde)")
+    pyplot.show()
+
+
+def plot_resolution_optimizations():
+    methods = [
+        Method(name="Rezolutie neoptimizata", function=resolution, kwargs={}),
+        Method(
+            name="Eliminarea literalilor redundanti",
+            function=resolution,
+            kwargs={"remove_redundant_literals": True},
+        ),
+        Method(
+            name="Euristica min-length",
+            function=resolution,
+            kwargs={"sort_clauses_by_len": True},
+        ),
+        Method(
+            name="Ignorarea tautologiilor",
+            function=resolution,
+            kwargs={"ignore_tautologies": True},
+        ),
+        Method(
+            name="Ignorarea resolventului",
+            function=resolution,
+            kwargs={"ignore_resolvent": True},
+        ),
+    ]
+    df1 = _clause_based_test_df(
+        n_clauses=1000,
+        max_literals_per_clause=10,
+        distinct_literals=10,
+        methods=methods,
+    )
+    viz = df1.plot(x="Numar de clauze", title="maxim 10 literali/clauza")
+    viz.set_ylabel("Timp (secunde)")
+    pyplot.show()
+
+    df2 = _clause_based_test_df(
+        n_clauses=100,
+        max_literals_per_clause=100,
+        distinct_literals=100,
+        methods=methods,
+    )
+    viz = df2.plot(x="Numar de clauze", title="maxim 100 literali/clauza")
+    viz.set_ylabel("Timp (secunde)")
+    pyplot.show()
+
+    df3 = _clause_based_test_df(
+        n_clauses=100,
+        max_literals_per_clause=1000,
+        distinct_literals=1000,
+        methods=methods,
+    )
+    viz = df3.plot(x="Numar de clauze", title="maxim 1000 literali/clauza")
     viz.set_ylabel("Timp (secunde)")
     pyplot.show()
 
@@ -104,7 +161,7 @@ def plot_dp_optimizations():
             kwargs={"remove_tautologies": True},
         ),
         Method(
-            name="Eliminarea cauzelor subsumate",
+            name="Eliminarea clauzelor subsumate",
             function=dp,
             kwargs={"remove_subsumed_clauses": True},
         ),
@@ -147,28 +204,23 @@ def plot_dp_optimizations():
     pyplot.show()
 
 
-def plot_resolution_optimizations():
+def plot_dpll_optimizations():
     methods = [
-        Method(name="Rezolutie neoptimizata", function=resolution, kwargs={}),
+        Method(name="DPLL neoptimizat", function=dpll, kwargs={}),
         Method(
-            name="Eliminarea literalilor redundanti",
-            function=resolution,
-            kwargs={"remove_redundant_literals": True},
+            name="Eliminarea clauzelor subsumate",
+            function=dpll,
+            kwargs={"remove_subsumed_clauses": True},
         ),
         Method(
-            name="Euristica min-length",
-            function=resolution,
-            kwargs={"sort_clauses_by_len": True},
+            name="Detectarea literalilor esuati",
+            function=dpll,
+            kwargs={"failed_literal_detection": True},
         ),
         Method(
-            name="Ignorarea tautologiilor",
-            function=resolution,
-            kwargs={"ignore_tautologies": True},
-        ),
-        Method(
-            name="Ignorarea resolventului",
-            function=resolution,
-            kwargs={"ignore_resolvent": True},
+            name="Euristica shortest-clause",
+            function=dpll,
+            kwargs={"shortest_clause_heuristic": True},
         ),
     ]
     df1 = _clause_based_test_df(

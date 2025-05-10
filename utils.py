@@ -20,9 +20,9 @@ def print_cnf(formula: Formula) -> None:
     print(cnf_str if cnf_str else "Empty formula")
 
 
-def generate_literal(max_char: int) -> Literal:
+def generate_literal(max_lit: int) -> Literal:
     return (
-        random.choice(string.ascii_lowercase[:max_char]),
+        f"x{random.randint(0, max_lit)}",
         random.choice([True, False]),
     )
 

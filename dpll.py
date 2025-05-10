@@ -1,6 +1,7 @@
 from definitions import Formula, Literal
 from collections import defaultdict
 
+
 def _simplify_formula(formula: Formula, assignment: dict[str, bool]) -> Formula:
     new_formula = set()
     for clause in formula:
@@ -75,7 +76,13 @@ def dpll(
     failed_literal_detection: bool = False,
     shortest_clause_heuristic: bool = False,
 ) -> bool:
-    def _dpll(formula: Formula, assignment: dict[str, bool]) -> bool:
+    def _dpll(
+        formula: Formula,
+        assignment: dict[str, bool],
+        remove_subsumed_clauses: bool,
+        failed_literal_detection: bool,
+        shortest_clause_heuristic: bool,
+    ) -> bool:
         if remove_subsumed_clauses:
             formula = _remove_subsumed_clauses(formula)
         formula = _simplify_formula(formula, assignment)
@@ -91,22 +98,52 @@ def dpll(
         )
         if literals:
             new_assignment.update(literals)
-            return _dpll(formula, new_assignment)
+            return _dpll(
+                formula,
+                new_assignment,
+                remove_subsumed_clauses,
+                failed_literal_detection,
+                shortest_clause_heuristic,
+            )
 
         if failed_literal_detection and (
             failed_literals := _failed_literal_detection(formula, assignment)
         ):
             new_assignment.update(failed_literals)
-            return _dpll(formula, new_assignment)
+            return _dpll(
+                formula,
+                new_assignment,
+                remove_subsumed_clauses,
+                failed_literal_detection,
+                shortest_clause_heuristic,
+            )
 
         var, sign = (
             _shortest_clause_literal(formula, assignment)
             if shortest_clause_heuristic
-            else next(var for c in formula for var, _ in c if var not in assignment),
-            True,
+            else (
+                next(var for c in formula for var, _ in c if var not in assignment),
+                True,
+            )
         )
-        return _dpll(formula, {**new_assignment, var: sign}) or _dpll(
-            formula, {**new_assignment, var: not sign}
+        return _dpll(
+            formula,
+            {**new_assignment, var: sign},
+            remove_subsumed_clauses,
+            failed_literal_detection,
+            shortest_clause_heuristic,
+        ) or _dpll(
+            formula,
+            {**new_assignment, var: not sign},
+            remove_subsumed_clauses,
+            failed_literal_detection,
+            shortest_clause_heuristic,
         )
 
-    return _dpll(formula, {})
+    return _dpll(
+        formula,
+        {},
+        remove_subsumed_clauses,
+        failed_literal_detection,
+        shortest_clause_heuristic,
+    )
