@@ -48,7 +48,7 @@ $ pip install -r requirements.txt
 $ python3 main.py
 ```
 
-Daca totul a mers bine, testele ar trebui sa ruleze, si graficele ar trebui sa se deschida. Outputul din linia de comanda va indica testul curent care se ruleaza. In dependenta de performanta calculatorului, acest lucru poate dura cateva secunde.
+Daca totul a mers bine, testele ar trebui sa ruleze, si graficele ar trebui sa se deschida, in ordinea in care sunt in articol. Outputul din linia de comanda va indica numarul de variabile pe care se executa metoda. In dependenta de performanta calculatorului, acest lucru poate dura cateva secunde.
 
 Graficele din articol au fost facute pe un calculator cu Intel i5-4300M @ 3.300GHz si 8GB RAM. Este posibil ca pe alte specificatii, valorile timpulului din grafice sa difere, dar tendintele graficului ar trebui sa fie aproximativ aceleasi.
 
