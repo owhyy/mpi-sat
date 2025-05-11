@@ -14,9 +14,10 @@ Optimizarile pentru DPLL au fost inspirate din notebook-ul `improving_sat_algori
 
 Formulele sunt reprezentate astfel:
 - Un literal este un tuplu format dintr-un string cu structura 'x\<numar\>' si un bool: `('x12', False)` reprezinta literalul $\neg{x12}$
-- O clauza e un set de literali. Pentru simplitate, admitem ca intre toti literali are loc disjunctia: `{('x1', False), ('x2', True), ('x3', False)}` reprezinta clauza $(\neg{x1} \lor x2 \lor \neg{x3})$
-- O formula este o lista de seturi de literali. Pentru simplitate, admitem ca toate formulele sunt in CNF (momentan): `[{('x1', True), ('x1', False)}, {('x2', True), ('x3', False)}]` reprezinta clauza $((x1 \lor \neg{x1}) \land (x2 \lor \neg{x3}))$
+- O clauza e un set* de literali. Pentru simplitate, admitem ca intre toti literali are loc disjunctia: `{('x1', False), ('x2', True), ('x3', False)}` reprezinta clauza $(\neg{x1} \lor x2 \lor \neg{x3})$
+- O formula este un set de seturi de literali. Pentru simplitate, admitem ca toate formulele sunt in CNF (momentan): `[{('x1', True), ('x1', False)}, {('x2', True), ('x3', False)}]` reprezinta clauza $((x1 \lor \neg{x1}) \land (x2 \lor \neg{x3}))$.
 
+*Reprezentarea sub forma de set este folosita pentru a elimina nevoia de a preprocesa formulele cu scopul de a elimina clauzele duplicate.
 
 ## Pasii de rulare
 

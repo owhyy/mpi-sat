@@ -16,10 +16,6 @@ def _resolve_var(a: Clause, b: Clause, var: str) -> Clause | None:
     return frozenset(new_clause)
 
 
-def is_tautology(clause: Clause) -> bool:
-    return any((var, True) in clause and (var, False) in clause for var, _ in clause)
-
-
 def _remove_subsumed_clauses(formula: Formula) -> Formula:
     result = set(formula)
     for c1 in formula:

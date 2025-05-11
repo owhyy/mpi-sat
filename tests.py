@@ -1,4 +1,5 @@
 from collections import defaultdict
+from ctypes import ArgumentError
 from dataclasses import dataclass
 from typing import Any, Callable
 from matplotlib import pyplot
@@ -18,42 +19,132 @@ class Method:
     kwargs: dict[str, Any]
 
 
-def _plot_methods(
-    methods: list[Method], n_variables: int, runs: int = 100
-) -> DataFrame:
+def _plot_methods(methods: list[Method], n_variables: int = 4, runs: int = 100) -> None:
+    if n_variables < 4:
+        raise ArgumentError("At least 3 variables are required")
+
     timings = defaultdict(list)
-    for variables in range(n_variables):
-        print(variables)
+    for variables in range(3, n_variables + 1):
         for method in methods:
             current_timing = []
             for _ in range(runs):
-                formula = generate_3sat_formula(3 + variables)
+                formula = generate_3sat_formula(variables)
                 current_timing.append(time(method.function, formula, **method.kwargs))
             timings[method.name].append(np.mean(current_timing))
+        print(variables)
 
     df = DataFrame(
         {
-            **{"Numar de variabile": map(lambda x: int(x + 3), range(n_variables))},
+            **{"Numar de variabile": range(3, n_variables + 1)},
             **{name: timing for name, timing in timings.items()},
         }
     )
-    viz = df.plot(x="Numar de variabile", title="3 SAT cu ratia 4.26/Clauza")
+    viz = df.plot(
+        x="Numar de variabile", title="3-SAT cu ratia de clauza per variabila = 4.26"
+    )
     viz.set_ylabel("Timp (secunde)")
     pyplot.show()
 
 
-def plot_bf_vs_resolution(n_variables: int):
+def resolution_plots() -> None:
     _plot_methods(
         [
             Method(name="Brute force", function=brute_force, kwargs={}),
             Method(name="Rezolutie", function=resolution, kwargs={}),
         ],
-        n_variables,
-        10,
+        6,
+        1,
     )
 
 
-def plot_dpll_heuristics(n_variables: int):
+def dp_plots() -> None:
+    _plot_methods(
+        [
+            Method(name="Brute force", function=brute_force, kwargs={}),
+            Method(name="Rezolutie", function=resolution, kwargs={}),
+            Method(name="DP", function=dp, kwargs={}),
+        ],
+        6,
+        1,
+    )
+    _plot_methods(
+        [
+            Method(name="Brute force", function=brute_force, kwargs={}),
+            Method(name="DP", function=dp, kwargs={}),
+        ],
+        13,
+        10,
+    )
+
+    _plot_methods(
+        [
+            Method(name="DP", function=dp, kwargs={}),
+            Method(
+                name="Eliminarea clauzelor subsumate",
+                function=dp,
+                kwargs={"remove_subsumed_clauses": True},
+            ),
+            Method(
+                name="Euristica min-occurence",
+                function=dp,
+                kwargs={"min_occurence_variable_heuristic": True},
+            ),
+        ],
+        13,
+        10,
+    )
+
+    _plot_methods(
+        [
+            Method(name="Brute force", function=brute_force, kwargs={}),
+            Method(name="DP", function=dp, kwargs={}),
+            Method(
+                name="DP cu optimizari",
+                function=dp,
+                kwargs={
+                    "min_occurence_variable_heuristic": True,
+                    "remove_subsumed_clauses": True,
+                },
+            ),
+        ],
+        13,
+        10,
+    )
+
+    _plot_methods(
+        [
+            Method(name="Brute force", function=brute_force, kwargs={}),
+            Method(
+                name="DP cu optimizari",
+                function=dp,
+                kwargs={
+                    "min_occurence_variable_heuristic": True,
+                    "remove_subsumed_clauses": True,
+                },
+            ),
+        ],
+        20,
+        1,
+    )
+
+
+def dpll_plots() -> None:
+    _plot_methods(
+        [
+            Method(name="DPLL", function=dpll, kwargs={}),
+            Method(
+                name="DP cu optimizari",
+                function=dp,
+                kwargs={
+                    "min_occurence_variable_heuristic": True,
+                    "remove_subsumed_clauses": True,
+                },
+            ),
+        ],
+        22,
+        10,
+    )
+
     _plot_methods(
         [
             Method(name="DPLL", function=dpll, kwargs={}),
@@ -64,11 +155,11 @@ def plot_dpll_heuristics(n_variables: int):
                 name="DPLL euristica JW2", function=dpll, kwargs={"jw_heuristic": True}
             ),
             Method(
-                name="DPLL euristica MOMsf cu k = 0",
+                name="DPLL euristica MOMsf",
                 function=dpll,
                 kwargs={"moms_heuristic": True},
             ),
         ],
-        n_variables,
-        100,
+        60,
+        10,
     )
