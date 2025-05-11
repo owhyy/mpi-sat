@@ -1,5 +1,5 @@
 from definitions import Formula, Literal
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 
 def _simplify_formula(formula: Formula, assignment: dict[str, bool]) -> Formula:
@@ -27,64 +27,85 @@ def _find_pure_literals(formula: Formula, assignment: dict[str, bool]) -> list[L
     return [(v, signs.pop()) for v, signs in polarity.items() if len(signs) == 1]
 
 
-def _failed_literal_detection(
-    formula: Formula, assignment: dict[str, bool]
-) -> list[Literal]:
-    literals = set(
-        (var, sign)
+def _mom_heuristic_literal(formula: Formula, assignment: dict[str, bool]) -> Literal:
+    min_size = min(
+        len(clause)
         for clause in formula
-        for var, sign in clause
-        if var not in assignment
+        if any(var not in assignment for var, _ in clause)
     )
-    failed_literals = []
-    for var, sign in literals:
-        test_assignment = assignment.copy()
-        test_assignment[var] = sign
-        simplified = _simplify_formula(formula, test_assignment)
-        if any(not clause for clause in simplified):
-            failed_literals.append((var, not sign))
-    return failed_literals
+    literal_count = defaultdict(int)
 
+    for clause in formula:
+        if len(clause) != min_size:
+            continue
+        for var, sign in clause:
+            if var not in assignment:
+                literal_count[(var, sign)] += 1
 
-def _shortest_clause_literal(formula: Formula, assignment: dict[str, bool]) -> Literal:
-    shortest = min(
-        (
-            clause
+    if not literal_count:
+        return next(
+            (var, True)
             for clause in formula
-            if any(var not in assignment for var, _ in clause)
-        ),
-        key=len,
+            for var, _ in clause
+            if var not in assignment
+        )
+
+    return max(literal_count.items(), key=lambda x: x[1])[0]
+
+
+def _jw2_heuristic(formula: Formula, assignment: dict[str, bool]) -> Literal:
+    scores = Counter()
+    for clause in formula:
+        if any(var in assignment for var, _ in clause):
+            continue
+        for var, sign in clause:
+            if var not in assignment:
+                scores[(var, sign)] += 2 ** (-len(clause))
+
+    symbols = {var for var, _ in scores}
+    best_var = max(symbols, key=lambda v: scores[(v, True)] + scores[(v, False)])
+    sign = True if scores[(best_var, True)] >= scores[(best_var, False)] else False
+    return best_var, sign
+
+
+def _momsf_heuristic(
+    formula: Formula, assignment: dict[str, bool], k: int = 0
+) -> Literal:
+    min_size = min(
+        len(clause)
+        for clause in formula
+        if any(var not in assignment for var, _ in clause)
     )
-    for lit in shortest:
-        if lit[0] not in assignment:
-            return lit
-    return next(var for clause in formula for var in clause if var[0] not in assignment)
+    scores = Counter()
 
+    for clause in formula:
+        if len(clause) != min_size:
+            continue
+        for var, sign in clause:
+            if var not in assignment:
+                scores[(var, sign)] += 2 ** (-len(clause))
 
-def _remove_subsumed_clauses(formula: Formula) -> Formula:
-    result = set(formula)
-    for c1 in formula:
-        for c2 in formula:
-            if c1 != c2 and c1 <= c2:
-                result.discard(c2)
-    return result
+    best_var = max(
+        scores,
+        key=lambda l: scores[l]
+        + scores[(l[0], not l[1])] * 2**k
+        + scores[l] * scores[(l[0], not l[1])],
+    )
+    sign = True if scores[best_var] >= scores[(best_var[0], not best_var[1])] else False
+    return best_var[0], sign
 
 
 def dpll(
     formula: Formula,
-    remove_subsumed_clauses: bool = False,
-    failed_literal_detection: bool = False,
-    shortest_clause_heuristic: bool = False,
+    mom_heuristic: bool = False,
+    jw_heuristic: bool = False,
+    moms_heuristic: bool = False,
+    k: int = 0,
 ) -> bool:
     def _dpll(
         formula: Formula,
         assignment: dict[str, bool],
-        remove_subsumed_clauses: bool,
-        failed_literal_detection: bool,
-        shortest_clause_heuristic: bool,
     ) -> bool:
-        if remove_subsumed_clauses:
-            formula = _remove_subsumed_clauses(formula)
         formula = _simplify_formula(formula, assignment)
 
         if not formula:
@@ -98,52 +119,20 @@ def dpll(
         )
         if literals:
             new_assignment.update(literals)
-            return _dpll(
-                formula,
-                new_assignment,
-                remove_subsumed_clauses,
-                failed_literal_detection,
-                shortest_clause_heuristic,
-            )
+            return _dpll(formula, new_assignment)
 
-        if failed_literal_detection and (
-            failed_literals := _failed_literal_detection(formula, assignment)
-        ):
-            new_assignment.update(failed_literals)
-            return _dpll(
-                formula,
-                new_assignment,
-                remove_subsumed_clauses,
-                failed_literal_detection,
-                shortest_clause_heuristic,
-            )
+        if moms_heuristic:
+            var, sign = _momsf_heuristic(formula, assignment, k)
+        elif jw_heuristic:
+            var, sign = _jw2_heuristic(formula, assignment)
+        elif mom_heuristic:
+            var, sign = _mom_heuristic_literal(formula, assignment)
+        else:
+            var = next(var for c in formula for var, _ in c if var not in assignment)
+            sign = True
 
-        var, sign = (
-            _shortest_clause_literal(formula, assignment)
-            if shortest_clause_heuristic
-            else (
-                next(var for c in formula for var, _ in c if var not in assignment),
-                True,
-            )
-        )
-        return _dpll(
-            formula,
-            {**new_assignment, var: sign},
-            remove_subsumed_clauses,
-            failed_literal_detection,
-            shortest_clause_heuristic,
-        ) or _dpll(
-            formula,
-            {**new_assignment, var: not sign},
-            remove_subsumed_clauses,
-            failed_literal_detection,
-            shortest_clause_heuristic,
+        return _dpll(formula, {**new_assignment, var: sign}) or _dpll(
+            formula, {**new_assignment, var: not sign}
         )
 
-    return _dpll(
-        formula,
-        {},
-        remove_subsumed_clauses,
-        failed_literal_detection,
-        shortest_clause_heuristic,
-    )
+    return _dpll(formula, {})

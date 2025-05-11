@@ -1,4 +1,4 @@
-from collections import Counter, defaultdict
+from collections import Counter
 from definitions import Clause, Formula
 
 
@@ -29,33 +29,13 @@ def _remove_subsumed_clauses(formula: Formula) -> Formula:
     return result
 
 
-def _remove_pure_literals(formula: Formula) -> Formula:
-    polarity = defaultdict(set)
-    for clause in formula:
-        for var, neg in clause:
-            polarity[var].add(neg)
-
-    pure_vars = {v for v, signs in polarity.items() if len(signs) == 1}
-    return {
-        clause for clause in formula if all(var not in pure_vars for var, _ in clause)
-    }
-
-
 def dp(
     formula: Formula,
-    remove_tautologies: bool = False,
     remove_subsumed_clauses: bool = False,
-    remove_pure_literals: bool = False,
     min_occurence_variable_heuristic: bool = False,
 ) -> bool:
-    if remove_tautologies:
-        formula = {clause for clause in formula if not is_tautology(clause)}
     if remove_subsumed_clauses:
         formula = _remove_subsumed_clauses(formula)
-
-    # this does not seem to do anything
-    if remove_pure_literals:
-        formula = _remove_pure_literals(formula)
 
     if frozenset() in formula:
         return False
@@ -79,6 +59,4 @@ def dp(
                 resolvents.add(res)
 
     new_formula = (formula - pos_clauses - neg_clauses) | resolvents
-    return dp(
-        new_formula, remove_tautologies, remove_subsumed_clauses, remove_pure_literals
-    )
+    return dp(new_formula, remove_subsumed_clauses)

@@ -1,6 +1,5 @@
 from timeit import default_timer
-from definitions import Clause, Formula, Literal
-import string
+from definitions import Clause, Formula
 import random
 
 
@@ -20,25 +19,13 @@ def print_cnf(formula: Formula) -> None:
     print(cnf_str if cnf_str else "Empty formula")
 
 
-def generate_literal(max_lit: int) -> Literal:
-    return (
-        f"x{random.randint(0, max_lit)}",
-        random.choice([True, False]),
-    )
+def generate_3sat_clause(distinct_literals: int) -> Clause:
+    variables = random.sample(range(distinct_literals), 3)
+    return frozenset((f"x{var}", random.choice([True, False])) for var in variables)
 
 
-def generate_random_clause(max_literals: int, distinct_literals: int) -> Clause:
-    literals_to_generate = random.randint(1, max_literals)
-    return frozenset(
-        generate_literal(distinct_literals) for _ in range(literals_to_generate)
-    )
-
-
-def generate_random_formula(
-        clauses: int, max_literals_per_clause: int, distinct_literals: int = 10
-) -> Formula:
-    return set(
-        generate_random_clause(max_literals_per_clause, distinct_literals)
-        for _ in range(clauses)
-    )
-
+def generate_3sat_formula(num_variables: int) -> Formula:
+    # 4.26 for phase transition    
+    # see https://en.wikipedia.org/wiki/Boolean_satisfiability_problem#3-satisfiability
+    num_clauses = int(4.26 * num_variables) 
+    return set(generate_3sat_clause(num_variables) for _ in range(num_clauses))
