@@ -1,15 +1,15 @@
 # mpi-sat
 
-Acest repozitoriu gazduieste codul pentru articolul "<nume articol>".
+Acest repozitoriu gazduieste codul sursa pentru articolul *O comparatie a performantei metodelor clasice de determinare a satisfiabilitatii*.
 
-Definirea datelor e identica cu cele din acest [blog](https://davefernig.com/2018/05/07/solving-sat-in-python/). Pentru implementarea metodei brute-force, generarea de formule si crearea graficelor a stat la baza acelasi blog, cu anumite modificari. Implementarea rezolutiei este bazata pe definitia rezolutiei din cartea *Logic for Computer Science: Foundations of Automatic Theorem Proving*[^1].
+Definirea datelor e asemanatoare cu cele din acest [blog](https://davefernig.com/2018/05/07/solving-sat-in-python/). Pentru implementarea metodei brute-force, generarea de formule si crearea graficelor a stat la baza acelasi blog, cu anumite modificari originale. Implementarea rezolutiei este bazata pe definitia rezolutiei din cartea *Logic for Computer Science: Foundations of Automatic Theorem Proving*[^1]. Optimizarile pentru DPLL au fost inspirate din notebook-ul `improving_sat_algorithms`[^2] corespunzatoare cartii *Artificial Intelligence: A Modern Approach* a lui Peter Norvig[^3].
 
 ## Reprezentarea formulelor
 
 Formulele sunt reprezentate astfel:
-- Un literal este un tuplu format dintr-un string si un bool: `('a', False)` reprezinta literalul $\neg{a}$
-- O clauza e un set de literali. Pentru simplitate, admitem ca intre toti literali are loc disjunctia: `{('a', False), ('b', True), ('c', False)}` reprezinta clauza $(\neg{a} \lor b \lor \neg{c})$
-- O formula este o lista de seturi de literali. Pentru simplitate, admitem ca toate formulele sunt in CNF (momentan): `[{('a', True), ('a', False)}, {('b', True), ('c', False)}]` reprezinta clauza $((a \lor \neg{a}) \land (b \lor \neg{c}))$
+- Un literal este un tuplu format dintr-un string cu structura 'x<numar>' si un bool: `('x12', False)` reprezinta literalul $\neg{x12}$
+- O clauza e un set de literali. Pentru simplitate, admitem ca intre toti literali are loc disjunctia: `{('x1', False), ('x2', True), ('x3', False)}` reprezinta clauza $(\neg{x1} \lor x2 \lor \neg{x3})$
+- O formula este o lista de seturi de literali. Pentru simplitate, admitem ca toate formulele sunt in CNF (momentan): `[{('x1', True), ('x1', False)}, {('x2', True), ('x3', False)}]` reprezinta clauza $((x1 \lor \neg{x1}) \land (x2 \lor \neg{x3}))$
 
 
 ## Pasii de rulare
@@ -47,3 +47,5 @@ Graficele din articol au fost facute pe un calculator cu Intel i5-4300M @ 3.300G
 
 
 [^1]: Logic for Computer Science: Foundations of Automatic Theorem Proving, Jean H. Gallier, 2003. Definitia rezolutiei pe care am folosit-o poate fi gasita la capitolul 4.3.2
+[^2]: https://github.com/aimacode/aima-python/blob/master/improving_sat_algorithms.ipynb
+[^3]: https://aima.cs.berkeley.edu/
