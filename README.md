@@ -1,13 +1,19 @@
-# mpi-sat
+# `mpi-sat`
 
 Acest repozitoriu gazduieste codul sursa pentru articolul *O comparatie a performantei metodelor clasice de determinare a satisfiabilitatii*.
 
-Definirea datelor e asemanatoare cu cele din acest [blog](https://davefernig.com/2018/05/07/solving-sat-in-python/). Pentru implementarea metodei brute-force, generarea de formule si crearea graficelor a stat la baza acelasi blog, cu anumite modificari originale. Implementarea rezolutiei este bazata pe definitia rezolutiei din cartea *Logic for Computer Science: Foundations of Automatic Theorem Proving*[^1]. Optimizarile pentru DPLL au fost inspirate din notebook-ul `improving_sat_algorithms`[^2] corespunzatoare cartii *Artificial Intelligence: A Modern Approach* a lui Peter Norvig[^3].
+Definirea datelor e asemanatoare cu cele din acest [blog](https://davefernig.com/2018/05/07/solving-sat-in-python/).
+
+Pentru implementarea metodei brute-force, generarea de formule si crearea graficelor a stat la baza acelasi blog, cu anumite modificari originale.
+
+Implementarea rezolutiei este bazata pe definitia rezolutiei din cartea *Logic for Computer Science: Foundations of Automatic Theorem Proving*[^1].
+
+Optimizarile pentru DPLL au fost inspirate din notebook-ul `improving_sat_algorithms`[^2] corespunzatoare cartii *Artificial Intelligence: A Modern Approach* a lui Peter Norvig[^3].
 
 ## Reprezentarea formulelor
 
 Formulele sunt reprezentate astfel:
-- Un literal este un tuplu format dintr-un string cu structura 'x<numar>' si un bool: `('x12', False)` reprezinta literalul $\neg{x12}$
+- Un literal este un tuplu format dintr-un string cu structura 'x\<numar\>' si un bool: `('x12', False)` reprezinta literalul $\neg{x12}$
 - O clauza e un set de literali. Pentru simplitate, admitem ca intre toti literali are loc disjunctia: `{('x1', False), ('x2', True), ('x3', False)}` reprezinta clauza $(\neg{x1} \lor x2 \lor \neg{x3})$
 - O formula este o lista de seturi de literali. Pentru simplitate, admitem ca toate formulele sunt in CNF (momentan): `[{('x1', True), ('x1', False)}, {('x2', True), ('x3', False)}]` reprezinta clauza $((x1 \lor \neg{x1}) \land (x2 \lor \neg{x3}))$
 
